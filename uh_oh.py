@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import base64
 import os.path
 
 from google.auth.transport.requests import Request
@@ -37,19 +38,26 @@ def main():
     try:
         # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
-        results = service.users().labels().list(userId='me').execute()
-        labels = results.get('labels', [])
 
-        if not labels:
-            print('No labels found.')
-            return
-        print('Labels:')
-        for label in labels:
-            print(label['name'])
+    # Call the Gmail API
+        results = service.users().messages().list(userId='me').execute()
+        messages = results.get('messages', [])
+
+        if not messages:
+            print('No messages found.')
+        else:
+            # print('Messages:')
+            for message in messages:
+                # print(message)
+                pass
+
+        m = service.users().messages().get(userId='me', id='18b5c859f055cf0d').execute()
+        print(base64.urlsafe_b64decode(m.get('payload').get('parts')[0].get('parts')[0].get('body').get('data')))
 
     except HttpError as error:
         # TODO(developer) - Handle errors from gmail API.
         print(f'An error occurred: {error}')
+
 
 
 if __name__ == '__main__':
